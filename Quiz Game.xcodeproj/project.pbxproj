@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D82B21DC25EFD85B00BA3082 /* MultipleChoice.plist in Resources */ = {isa = PBXBuildFile; fileRef = D82B21DB25EFD85B00BA3082 /* MultipleChoice.plist */; };
+		D82B21E025EFD95A00BA3082 /* QuizLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B21DF25EFD95A00BA3082 /* QuizLoader.swift */; };
+		D89F001525F39CE200B02033 /* QuizAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89F001425F39CE200B02033 /* QuizAlertView.swift */; };
 		D8ABB3AE25EC8E7B00DF291E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8ABB3AD25EC8E7B00DF291E /* AppDelegate.swift */; };
 		D8ABB3B025EC8E7B00DF291E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8ABB3AF25EC8E7B00DF291E /* SceneDelegate.swift */; };
 		D8ABB3B225EC8E7B00DF291E /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8ABB3B125EC8E7B00DF291E /* MenuViewController.swift */; };
@@ -21,6 +24,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D82B21DB25EFD85B00BA3082 /* MultipleChoice.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = MultipleChoice.plist; sourceTree = "<group>"; };
+		D82B21DF25EFD95A00BA3082 /* QuizLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizLoader.swift; sourceTree = "<group>"; };
+		D89F001425F39CE200B02033 /* QuizAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAlertView.swift; sourceTree = "<group>"; };
 		D8ABB3AA25EC8E7B00DF291E /* Quiz Game.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Quiz Game.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8ABB3AD25EC8E7B00DF291E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D8ABB3AF25EC8E7B00DF291E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -111,6 +117,8 @@
 				D8ABB3D025EC9A1F00DF291E /* RoundedButton.swift */,
 				D8ABB3D325EC9B1200DF291E /* RoundedLabel.swift */,
 				D8ABB3D825ECE9D300DF291E /* Constants+Extensions.swift */,
+				D82B21DF25EFD95A00BA3082 /* QuizLoader.swift */,
+				D89F001425F39CE200B02033 /* QuizAlertView.swift */,
 			);
 			path = Custom;
 			sourceTree = "<group>";
@@ -126,6 +134,7 @@
 		D8ABB3C725EC900F00DF291E /* Questions */ = {
 			isa = PBXGroup;
 			children = (
+				D82B21DB25EFD85B00BA3082 /* MultipleChoice.plist */,
 			);
 			path = Questions;
 			sourceTree = "<group>";
@@ -199,6 +208,7 @@
 				D8ABB3BA25EC8E7D00DF291E /* LaunchScreen.storyboard in Resources */,
 				D8ABB3B725EC8E7D00DF291E /* Assets.xcassets in Resources */,
 				D8ABB3B525EC8E7B00DF291E /* Main.storyboard in Resources */,
+				D82B21DC25EFD85B00BA3082 /* MultipleChoice.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,6 +222,8 @@
 				D8ABB3B225EC8E7B00DF291E /* MenuViewController.swift in Sources */,
 				D8ABB3D425EC9B1200DF291E /* RoundedLabel.swift in Sources */,
 				D8ABB3E025ED47D700DF291E /* MultipleChoiceViewController.swift in Sources */,
+				D82B21E025EFD95A00BA3082 /* QuizLoader.swift in Sources */,
+				D89F001525F39CE200B02033 /* QuizAlertView.swift in Sources */,
 				D8ABB3AE25EC8E7B00DF291E /* AppDelegate.swift in Sources */,
 				D8ABB3B025EC8E7B00DF291E /* SceneDelegate.swift in Sources */,
 				D8ABB3D125EC9A1F00DF291E /* RoundedButton.swift in Sources */,

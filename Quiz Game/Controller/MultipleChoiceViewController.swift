@@ -33,6 +33,17 @@ class MultipleChoiceViewController: UIViewController {
     
     private let backgroundColor = UIColor(red: 44/255, green: 62/255, blue: 80/255, alpha: 1.0)
     private let foregroundColor = UIColor(red: 52/255, green: 73/255, blue: 94/255, alpha: 1.0)
+    
+    private let quizLoader = QuizLoader()
+    private var questionArray = [MultipleChoiceQuestion]()
+    private var questionIndex = 0
+    private var currentQuestion: MultipleChoiceQuestion!
+    
+    private var timer = Timer()
+    private var score = 0
+    private var highscore = UserDefaults.standard.integer(forKey: multipleChoiceHighscoreIdentifier)
+    
+    private var quizAlertView: QuizAlertView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,12 +65,13 @@ class MultipleChoiceViewController: UIViewController {
         questionView.addSubview(questionLabel)
         questionLabel.backgroundColor = foregroundColor
         questionLabel.textColor = UIColor.white
-        questionLabel.font = UIFont.boldSystemFont(ofSize: 50)
+        questionLabel.font = UIFont.boldSystemFont(ofSize: 30)
         questionLabel.textAlignment = .center
         questionLabel.numberOfLines = 4
         questionLabel.adjustsFontSizeToFitWidth = true
         questionButton.translatesAutoresizingMaskIntoConstraints = false
         questionView.addSubview(questionButton)
+        questionButton.addTarget(self, action: #selector(questionButtonHandler), for: .touchUpInside)
         questionButton.isEnabled = false
         
         answerView.translatesAutoresizingMaskIntoConstraints = false
@@ -69,12 +81,14 @@ class MultipleChoiceViewController: UIViewController {
             answerButtons.append(button)
             button.translatesAutoresizingMaskIntoConstraints = false
             answerView.addSubview(button)
+            button.addTarget(self, action: #selector(answerButtonHandler), for: .touchUpInside)
         }
         
         countdownView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(countdownView)
         progressView.translatesAutoresizingMaskIntoConstraints = false
         countdownView.addSubview(progressView)
+        progressView.transform = progressView.transform.scaledBy(x: 1, y: 10)
         
         contentViewConstraints = [
             contentView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -152,6 +166,128 @@ class MultipleChoiceViewController: UIViewController {
         NSLayoutConstraint.activate(answerButtonsConstraints)
         NSLayoutConstraint.activate(countdownViewConstraints)
         NSLayoutConstraint.activate(progressViewConstraints)
+        
+        loadQuestions()
+    }
+    
+    func loadQuestions() {
+        do {
+            questionArray = try quizLoader.loadMultipleChoiceQuiz(forQuiz: "MultipleChoice")
+            loadNextQuestion()
+        } catch {
+            switch error {
+            case LoaderError.dictionaryFailed:
+                print("Could not load dictionary")
+            case LoaderError.pathFailed:
+                print("Could not find valid file at path")
+            default:
+                print("Unknown error")
+            }
+        }
+    }
+    
+    func loadNextQuestion() {
+        currentQuestion = questionArray[questionIndex]
+        setTitlesForButtons()
+    }
+    
+    func setTitlesForButtons() {
+        for (index, button) in answerButtons.enumerated() {
+            button.titleLabel?.lineBreakMode = .byWordWrapping
+            button.setTitle(currentQuestion.answers[index], for: .normal)
+            button.isEnabled = true
+            button.backgroundColor = foregroundColor
+        }
+        questionLabel.text = currentQuestion.question
+        startTimer()
+    }
+    
+    func startTimer() {
+        progressView.progressTintColor = flatGreen
+        progressView.trackTintColor = UIColor.clear
+        progressView.progress = 1.0
+        timer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(updateProgressView), userInfo: nil, repeats: true)
+    }
+    
+    @objc func updateProgressView() {
+        progressView.progress -= 0.01/30
+        if progressView.progress <= 0 {
+            outOfTime()
+        } else if progressView.progress <= 0.2 {
+            progressView.progressTintColor = flatRed
+        } else if progressView.progress <= 0.5 {
+            progressView.progressTintColor = flatOrange
+        }
+    }
+    
+    func outOfTime() {
+        timer.invalidate()
+        showAlert(forReason: 0)
+        for button in answerButtons {
+            button.isEnabled = false
+        }
+    }
+    
+    @objc func questionButtonHandler() {
+        questionButton.isEnabled = false
+        questionIndex += 1
+        questionIndex < questionArray.count ? loadNextQuestion() : showAlert(forReason: 2)
+    }
+    
+    @objc func answerButtonHandler(_ sender: RoundedButton) {
+        timer.invalidate()
+        if sender.titleLabel?.text == currentQuestion.correctAnswer {
+            score += 1
+            questionLabel.text = "Tap to continue"
+            questionButton.isEnabled = true
+        } else {
+            sender.backgroundColor = flatRed
+            showAlert(forReason: 1)
+        }
+        for button in answerButtons {
+            button.isEnabled = false
+            if button.titleLabel?.text == currentQuestion.correctAnswer {
+                button.backgroundColor = flatGreen
+            }
+        }
+    }
+    
+    func showAlert(forReason reason: Int) {
+        switch reason {
+        case 0:
+            quizAlertView = QuizAlertView(withTitle: "You lost", andMessage: "You ran out of time", colors: [backgroundColor, foregroundColor])
+        case 1:
+            quizAlertView = QuizAlertView(withTitle: "You lost", andMessage: "You picked the wrong answer", colors: [backgroundColor, foregroundColor])
+        case 2:
+            quizAlertView = QuizAlertView(withTitle: "You won", andMessage: "You have answered all answers", colors: [backgroundColor, foregroundColor])
+        default:
+            break
+        }
+        
+        if let qav = quizAlertView {
+            qav.closeButton.addTarget(self, action: #selector(closeAlert), for: .touchUpInside)
+            createQuizAlertView(withAlert: qav)
+        }
+        
+    }
+    
+    func createQuizAlertView(withAlert alert: QuizAlertView) {
+        alert.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(alert)
+        
+        alert.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        alert.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        alert.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        alert.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    @objc func closeAlert() {
+        if score > highscore {
+            highscore = score
+            UserDefaults.standard.set(highscore, forKey: multipleChoiceHighscoreIdentifier)
+        }
+        UserDefaults.standard.set(score, forKey: multipleChoiceRecentscoreIdentifier)
+        navigationController?.popViewController(animated: true)
     }
     
 

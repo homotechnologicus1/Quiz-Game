@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MultipleChoiceViewController: UIViewController {
+class GenericQuizViewController: UIViewController {
     private let contentView = UIView()
     private var contentViewConstraints: [NSLayoutConstraint]!
     
@@ -31,16 +31,20 @@ class MultipleChoiceViewController: UIViewController {
     private let progressView = UIProgressView()
     private var progressViewConstraints: [NSLayoutConstraint]!
     
+    // Change colors
     private let backgroundColor = UIColor(red: 44/255, green: 62/255, blue: 80/255, alpha: 1.0)
     private let foregroundColor = UIColor(red: 52/255, green: 73/255, blue: 94/255, alpha: 1.0)
     
     private let quizLoader = QuizLoader()
+    
+    // Select according question type
     private var questionArray = [MultipleChoiceQuestion]()
     private var questionIndex = 0
     private var currentQuestion: MultipleChoiceQuestion!
     
     private var timer = Timer()
     private var score = 0
+    // Change Identifier
     private var highscore = UserDefaults.standard.integer(forKey: multipleChoiceHighscoreIdentifier)
     
     private var quizAlertView: QuizAlertView?
@@ -61,28 +65,11 @@ class MultipleChoiceViewController: UIViewController {
         
         questionView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(questionView)
-        questionLabel.translatesAutoresizingMaskIntoConstraints = false
-        questionView.addSubview(questionLabel)
-        questionLabel.backgroundColor = foregroundColor
-        questionLabel.textColor = UIColor.white
-        questionLabel.font = UIFont.boldSystemFont(ofSize: 30)
-        questionLabel.textAlignment = .center
-        questionLabel.numberOfLines = 4
-        questionLabel.adjustsFontSizeToFitWidth = true
-        questionButton.translatesAutoresizingMaskIntoConstraints = false
-        questionView.addSubview(questionButton)
-        questionButton.addTarget(self, action: #selector(questionButtonHandler), for: .touchUpInside)
-        questionButton.isEnabled = false
+        
         
         answerView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(answerView)
-        for _ in 0...3 {
-            let button = RoundedButton()
-            answerButtons.append(button)
-            button.translatesAutoresizingMaskIntoConstraints = false
-            answerView.addSubview(button)
-            button.addTarget(self, action: #selector(answerButtonHandler), for: .touchUpInside)
-        }
+        
         
         countdownView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(countdownView)
@@ -104,19 +91,7 @@ class MultipleChoiceViewController: UIViewController {
             questionView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.4)
         ]
         
-        questionLabelConstraints = [
-            questionLabel.topAnchor.constraint(equalTo: questionView.topAnchor),
-            questionLabel.leadingAnchor.constraint(equalTo: questionView.leadingAnchor),
-            questionLabel.trailingAnchor.constraint(equalTo: questionView.trailingAnchor),
-            questionLabel.bottomAnchor.constraint(equalTo: questionView.bottomAnchor)
-        ]
         
-        questionButtonConstraints = [
-            questionButton.topAnchor.constraint(equalTo: questionView.topAnchor),
-            questionButton.leadingAnchor.constraint(equalTo: questionView.leadingAnchor),
-            questionButton.trailingAnchor.constraint(equalTo: questionView.trailingAnchor),
-            questionButton.bottomAnchor.constraint(equalTo: questionView.bottomAnchor)
-        ]
         
         answerViewConstraints = [
             answerView.topAnchor.constraint(equalTo: questionView.bottomAnchor, constant: 20.0),
@@ -125,25 +100,7 @@ class MultipleChoiceViewController: UIViewController {
             answerView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.4)
         ]
         
-        answerButtonsConstraints = [
-            answerButtons[0].leadingAnchor.constraint(equalTo: answerView.leadingAnchor),
-            answerButtons[0].trailingAnchor.constraint(equalTo: answerButtons[1].leadingAnchor, constant: -8.0),
-            answerButtons[0].topAnchor.constraint(equalTo: answerView.topAnchor),
-            answerButtons[0].bottomAnchor.constraint(equalTo: answerButtons[2].topAnchor, constant: -8.0),
-            answerButtons[1].trailingAnchor.constraint(equalTo: answerView.trailingAnchor),
-            answerButtons[1].topAnchor.constraint(equalTo: answerView.topAnchor),
-            answerButtons[1].bottomAnchor.constraint(equalTo: answerButtons[3].topAnchor, constant: -8.0),
-            answerButtons[2].leadingAnchor.constraint(equalTo: answerView.leadingAnchor),
-            answerButtons[2].trailingAnchor.constraint(equalTo: answerButtons[3].leadingAnchor, constant: -8.0),
-            answerButtons[2].bottomAnchor.constraint(equalTo: answerView.bottomAnchor),
-            answerButtons[3].trailingAnchor.constraint(equalTo: answerView.trailingAnchor),
-            answerButtons[3].bottomAnchor.constraint(equalTo: answerView.bottomAnchor)
-        ]
         
-        for index in 1..<answerButtons.count {
-            answerButtonsConstraints.append(answerButtons[index].heightAnchor.constraint(equalTo: answerButtons[index-1].heightAnchor))
-            answerButtonsConstraints.append(answerButtons[index].widthAnchor.constraint(equalTo: answerButtons[index-1].widthAnchor))
-        }
         
         countdownViewConstraints = [
             countdownView.topAnchor.constraint(equalTo: answerView.bottomAnchor, constant: 20.0),
@@ -160,10 +117,8 @@ class MultipleChoiceViewController: UIViewController {
         
         NSLayoutConstraint.activate(contentViewConstraints)
         NSLayoutConstraint.activate(questionViewConstraints)
-        NSLayoutConstraint.activate(questionLabelConstraints)
-        NSLayoutConstraint.activate(questionButtonConstraints)
+        
         NSLayoutConstraint.activate(answerViewConstraints)
-        NSLayoutConstraint.activate(answerButtonsConstraints)
         NSLayoutConstraint.activate(countdownViewConstraints)
         NSLayoutConstraint.activate(progressViewConstraints)
         
@@ -172,6 +127,7 @@ class MultipleChoiceViewController: UIViewController {
     
     func loadQuestions() {
         do {
+            // Load appropriate questions
             questionArray = try quizLoader.loadMultipleChoiceQuiz(forQuiz: "MultipleChoice")
             loadNextQuestion()
         } catch {
@@ -192,13 +148,7 @@ class MultipleChoiceViewController: UIViewController {
     }
     
     func setTitlesForButtons() {
-        for (index, button) in answerButtons.enumerated() {
-            button.titleLabel?.lineBreakMode = .byWordWrapping
-            button.setTitle(currentQuestion.answers[index], for: .normal)
-            button.isEnabled = true
-            button.backgroundColor = foregroundColor
-        }
-        questionLabel.text = currentQuestion.question
+        
         startTimer()
     }
     
@@ -223,16 +173,9 @@ class MultipleChoiceViewController: UIViewController {
     func outOfTime() {
         timer.invalidate()
         showAlert(forReason: 0)
-        for button in answerButtons {
-            button.isEnabled = false
-        }
+        
     }
-    
-    @objc func questionButtonHandler() {
-        questionButton.isEnabled = false
-        questionIndex += 1
-        questionIndex < questionArray.count ? loadNextQuestion() : showAlert(forReason: 2)
-    }
+
     
     @objc func answerButtonHandler(_ sender: RoundedButton) {
         timer.invalidate()
@@ -244,12 +187,7 @@ class MultipleChoiceViewController: UIViewController {
             sender.backgroundColor = flatRed
             showAlert(forReason: 1)
         }
-        for button in answerButtons {
-            button.isEnabled = false
-            if button.titleLabel?.text == currentQuestion.correctAnswer {
-                button.backgroundColor = flatGreen
-            }
-        }
+        
     }
     
     func showAlert(forReason reason: Int) {

@@ -13,7 +13,9 @@ class ImageQuizViewController: UIViewController {
     
     private let questionView = UIImageView()
     private var questionViewConstraints: [NSLayoutConstraint]!
-        
+    
+    private var imageGridViews = [UIView]()
+    
     private let answerView = UIView()
     private var answerViewConstraints: [NSLayoutConstraint]!
     
@@ -36,6 +38,8 @@ class ImageQuizViewController: UIViewController {
     private var currentQuestion: MultipleChoiceQuestion!
     
     private var timer = Timer()
+    private var revealTimer = Timer()
+    private var revealIndex = 0
     private var score = 0
     private var highscore = UserDefaults.standard.integer(forKey: imageQuizHighscoreIdentifier)
     
@@ -57,7 +61,13 @@ class ImageQuizViewController: UIViewController {
         
         questionView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(questionView)
-        
+        for _ in 0...8 {
+            let view = UIView()
+            imageGridViews.append(view)
+            view.translatesAutoresizingMaskIntoConstraints = false
+            questionView.addSubview(view)
+            view.backgroundColor = foregroundColor
+        }
         
         answerView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(answerView)
@@ -138,6 +148,33 @@ class ImageQuizViewController: UIViewController {
         NSLayoutConstraint.activate(answerButtonsConstraints)
         NSLayoutConstraint.activate(countdownViewConstraints)
         NSLayoutConstraint.activate(progressViewConstraints)
+        
+        for index in 0..<imageGridViews.count {
+            if [0,1,2].contains(index) {
+                imageGridViews[index].topAnchor.constraint(equalTo: questionView.topAnchor).isActive = true
+            }
+            if [3,4,5].contains(index) {
+                imageGridViews[index].topAnchor.constraint(equalTo: imageGridViews[0].bottomAnchor).isActive = true
+            }
+            if [6,7,8].contains(index) {
+                imageGridViews[index].topAnchor.constraint(equalTo: imageGridViews[3].bottomAnchor).isActive = true
+                imageGridViews[index].bottomAnchor.constraint(equalTo: questionView.bottomAnchor).isActive = true
+            }
+            if [0,3,6].contains(index) {
+                imageGridViews[index].leadingAnchor.constraint(equalTo: questionView.leadingAnchor).isActive = true
+            }
+            if [1,4,7].contains(index) {
+                imageGridViews[index].leadingAnchor.constraint(equalTo: imageGridViews[0].trailingAnchor).isActive = true
+            }
+            if [2,5,8].contains(index) {
+                imageGridViews[index].leadingAnchor.constraint(equalTo: imageGridViews[1].trailingAnchor).isActive = true
+                imageGridViews[index].trailingAnchor.constraint(equalTo: questionView.trailingAnchor).isActive = true
+            }
+            if index > 0 {
+                imageGridViews[index].heightAnchor.constraint(equalTo: imageGridViews[index-1].heightAnchor).isActive = true
+                imageGridViews[index].widthAnchor.constraint(equalTo: imageGridViews[index-1].widthAnchor).isActive = true
+            }
+        }
         
         loadQuestions()
     }

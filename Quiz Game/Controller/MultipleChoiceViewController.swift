@@ -294,6 +294,9 @@ class MultipleChoiceViewController: UIViewController {
         super.didMove(toParent: parent)
         if parent == nil {
             timer.invalidate()
+            print("didMove(toParent: ")
+        } else {
+            print("didMove(toParent: ", parent!)
         }
     }
 

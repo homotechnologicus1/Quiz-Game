@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		D82B21DC25EFD85B00BA3082 /* MultipleChoice.plist in Resources */ = {isa = PBXBuildFile; fileRef = D82B21DB25EFD85B00BA3082 /* MultipleChoice.plist */; };
 		D82B21E025EFD95A00BA3082 /* QuizLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B21DF25EFD95A00BA3082 /* QuizLoader.swift */; };
+		D83F5E4225FA88BB00365598 /* EmojiQuiz.plist in Resources */ = {isa = PBXBuildFile; fileRef = D83F5E4125FA88BB00365598 /* EmojiQuiz.plist */; };
+		D83F5E4525FAA1B500365598 /* EmojiQuizViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83F5E4425FAA1B500365598 /* EmojiQuizViewController.swift */; };
 		D87988F025F7ACC200F6B310 /* ImageQuizViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87988EF25F7ACC200F6B310 /* ImageQuizViewController.swift */; };
 		D87988F625F7AE2C00F6B310 /* apple.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D87988F225F7AE2B00F6B310 /* apple.jpg */; };
 		D87988F725F7AE2C00F6B310 /* burger.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D87988F325F7AE2B00F6B310 /* burger.jpg */; };
@@ -33,6 +35,9 @@
 /* Begin PBXFileReference section */
 		D82B21DB25EFD85B00BA3082 /* MultipleChoice.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = MultipleChoice.plist; sourceTree = "<group>"; };
 		D82B21DF25EFD95A00BA3082 /* QuizLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizLoader.swift; sourceTree = "<group>"; };
+		D83F5E4125FA88BB00365598 /* EmojiQuiz.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = EmojiQuiz.plist; sourceTree = "<group>"; };
+		D83F5E4425FAA1B500365598 /* EmojiQuizViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmojiQuizViewController.swift; sourceTree = "<group>"; };
+		D86433B425F9268A00140374 /* shuffle.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = shuffle.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		D87988EF25F7ACC200F6B310 /* ImageQuizViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageQuizViewController.swift; sourceTree = "<group>"; };
 		D87988F225F7AE2B00F6B310 /* apple.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = apple.jpg; sourceTree = "<group>"; };
 		D87988F325F7AE2B00F6B310 /* burger.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = burger.jpg; sourceTree = "<group>"; };
@@ -92,6 +97,7 @@
 				D8ABB3C425EC8FFD00DF291E /* Controller */,
 				D8ABB3C325EC8FF400DF291E /* Template */,
 				D8ABB3C225EC8FEE00DF291E /* UI */,
+				D86433B425F9268A00140374 /* shuffle.playground */,
 			);
 			path = "Quiz Game";
 			sourceTree = "<group>";
@@ -122,6 +128,7 @@
 				D8ABB3B125EC8E7B00DF291E /* MenuViewController.swift */,
 				D8ABB3DF25ED47D700DF291E /* MultipleChoiceViewController.swift */,
 				D89F001725F3E0AB00B02033 /* GenericQuizViewController.swift */,
+				D83F5E4425FAA1B500365598 /* EmojiQuizViewController.swift */,
 				D87988EF25F7ACC200F6B310 /* ImageQuizViewController.swift */,
 			);
 			path = Controller;
@@ -152,6 +159,7 @@
 			children = (
 				D82B21DB25EFD85B00BA3082 /* MultipleChoice.plist */,
 				D87988FB25F7AEBD00F6B310 /* ImageQuiz.plist */,
+				D83F5E4125FA88BB00365598 /* EmojiQuiz.plist */,
 			);
 			path = Questions;
 			sourceTree = "<group>";
@@ -226,6 +234,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8ABB3DD25ED092700DF291E /* logo.png in Resources */,
+				D83F5E4225FA88BB00365598 /* EmojiQuiz.plist in Resources */,
 				D8ABB3BA25EC8E7D00DF291E /* LaunchScreen.storyboard in Resources */,
 				D8ABB3B725EC8E7D00DF291E /* Assets.xcassets in Resources */,
 				D87988FC25F7AEBD00F6B310 /* ImageQuiz.plist in Resources */,
@@ -245,6 +254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D83F5E4525FAA1B500365598 /* EmojiQuizViewController.swift in Sources */,
 				D8ABB3B225EC8E7B00DF291E /* MenuViewController.swift in Sources */,
 				D87988F025F7ACC200F6B310 /* ImageQuizViewController.swift in Sources */,
 				D8ABB3D425EC9B1200DF291E /* RoundedLabel.swift in Sources */,

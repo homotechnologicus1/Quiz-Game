@@ -7,6 +7,7 @@
 
 import UIKit
 
+/*
 extension Array {
     mutating func shuffle() {
         if count < 2 {return}
@@ -18,7 +19,7 @@ extension Array {
             self.swapAt(i, j)
         }
     }
-}
+}   */
 
 let multipleChoiceHighscoreIdentifier = "MultipleChoiceHighscoreIdentifier"
 let multipleChoiceRecentscoreIdentifier = "MultipleChoiceRecentscoreIdentifier"

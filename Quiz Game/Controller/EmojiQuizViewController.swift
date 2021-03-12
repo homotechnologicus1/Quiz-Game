@@ -7,7 +7,7 @@
 
 import UIKit
 
-class EmojiQuizViewController: UIViewController {
+class EmojiQuizViewController: UIViewController, UITextFieldDelegate {
     private let contentView = UIView()
     private var contentViewConstraints: [NSLayoutConstraint]!
     
@@ -16,6 +16,9 @@ class EmojiQuizViewController: UIViewController {
     
     private let answerView = UIView()
     private var answerViewConstraints: [NSLayoutConstraint]!
+    
+    private let answerTextField = UITextField()
+    private var answerTextFieldConstraints: [NSLayoutConstraint]!
     
     private let countdownView = UIView()
     private var countdownViewConstraints: [NSLayoutConstraint]!
@@ -31,21 +34,18 @@ class EmojiQuizViewController: UIViewController {
     private let progressView = UIProgressView()
     private var progressViewConstraints: [NSLayoutConstraint]!
     
-    // Change colors
-    private let backgroundColor = UIColor(red: 44/255, green: 62/255, blue: 80/255, alpha: 1.0)
-    private let foregroundColor = UIColor(red: 52/255, green: 73/255, blue: 94/255, alpha: 1.0)
+    private let backgroundColor = UIColor(red: 41/255, green: 128/255, blue: 185/255, alpha: 1.0)
+    private let foregroundColor = UIColor(red: 52/255, green: 152/255, blue: 219/255, alpha: 1.0)
     
     private let quizLoader = QuizLoader()
     
-    // Select according question type
-    private var questionArray = [MultipleChoiceQuestion]()
+    private var questionArray = [SimpleQuestion]()
     private var questionIndex = 0
-    private var currentQuestion: MultipleChoiceQuestion!
+    private var currentQuestion: SimpleQuestion!
     
     private var timer = Timer()
     private var score = 0
-    // Change Identifier
-    private var highscore = UserDefaults.standard.integer(forKey: multipleChoiceHighscoreIdentifier)
+    private var highscore = UserDefaults.standard.integer(forKey: emojiHighscoreIdentifier)
     
     private var quizAlertView: QuizAlertView?
 
@@ -53,6 +53,9 @@ class EmojiQuizViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = backgroundColor
         layoutView()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -65,11 +68,30 @@ class EmojiQuizViewController: UIViewController {
         
         questionView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(questionView)
-        
+        questionLabel.translatesAutoresizingMaskIntoConstraints = false
+        questionView.addSubview(questionLabel)
+        questionLabel.backgroundColor = foregroundColor
+        questionLabel.textColor = UIColor.white
+        questionLabel.font = UIFont.boldSystemFont(ofSize: 30)
+        questionLabel.textAlignment = .center
+        questionLabel.numberOfLines = 4
+        questionLabel.adjustsFontSizeToFitWidth = true
+        questionButton.translatesAutoresizingMaskIntoConstraints = false
+        questionView.addSubview(questionButton)
+        questionButton.addTarget(self, action: #selector(questionButtonHandler), for: .touchUpInside)
+        questionButton.isEnabled = false
         
         answerView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(answerView)
-        
+        answerTextField.translatesAutoresizingMaskIntoConstraints = false
+        answerView.addSubview(answerTextField)
+        answerTextField.textColor = UIColor.white
+        answerTextField.textAlignment = .center
+        answerTextField.font = .boldSystemFont(ofSize: 30.0)
+        answerTextField.adjustsFontSizeToFitWidth = true
+        answerTextField.autocorrectionType = .no
+        answerTextField.isEnabled = false
+        answerTextField.delegate = self
         
         countdownView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(countdownView)
@@ -91,7 +113,19 @@ class EmojiQuizViewController: UIViewController {
             questionView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.4)
         ]
         
+        questionLabelConstraints = [
+            questionLabel.topAnchor.constraint(equalTo: questionView.topAnchor),
+            questionLabel.leadingAnchor.constraint(equalTo: questionView.leadingAnchor),
+            questionLabel.trailingAnchor.constraint(equalTo: questionView.trailingAnchor),
+            questionLabel.bottomAnchor.constraint(equalTo: questionView.bottomAnchor)
+        ]
         
+        questionButtonConstraints = [
+            questionButton.topAnchor.constraint(equalTo: questionView.topAnchor),
+            questionButton.leadingAnchor.constraint(equalTo: questionView.leadingAnchor),
+            questionButton.trailingAnchor.constraint(equalTo: questionView.trailingAnchor),
+            questionButton.bottomAnchor.constraint(equalTo: questionView.bottomAnchor)
+        ]
         
         answerViewConstraints = [
             answerView.topAnchor.constraint(equalTo: questionView.bottomAnchor, constant: 20.0),
@@ -100,7 +134,12 @@ class EmojiQuizViewController: UIViewController {
             answerView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.4)
         ]
         
-        
+        answerTextFieldConstraints = [
+            answerTextField.heightAnchor.constraint(equalTo: answerView.heightAnchor, multiplier: 0.5),
+            answerTextField.leadingAnchor.constraint(equalTo: answerView.leadingAnchor),
+            answerTextField.trailingAnchor.constraint(equalTo: answerView.trailingAnchor),
+            answerTextField.centerYAnchor.constraint(equalTo: answerView.centerYAnchor)
+        ]
         
         countdownViewConstraints = [
             countdownView.topAnchor.constraint(equalTo: answerView.bottomAnchor, constant: 20.0),
@@ -117,8 +156,10 @@ class EmojiQuizViewController: UIViewController {
         
         NSLayoutConstraint.activate(contentViewConstraints)
         NSLayoutConstraint.activate(questionViewConstraints)
-        
+        NSLayoutConstraint.activate(questionLabelConstraints)
+        NSLayoutConstraint.activate(questionButtonConstraints)
         NSLayoutConstraint.activate(answerViewConstraints)
+        NSLayoutConstraint.activate(answerTextFieldConstraints)
         NSLayoutConstraint.activate(countdownViewConstraints)
         NSLayoutConstraint.activate(progressViewConstraints)
         
@@ -128,7 +169,7 @@ class EmojiQuizViewController: UIViewController {
     func loadQuestions() {
         do {
             // Load appropriate questions
-            questionArray = try quizLoader.loadMultipleChoiceQuiz(forQuiz: "MultipleChoice")
+            questionArray = try quizLoader.loadSimpleQuiz(forQuiz: "EmojiQuiz")
             loadNextQuestion()
         } catch {
             switch error {
@@ -148,7 +189,11 @@ class EmojiQuizViewController: UIViewController {
     }
     
     func setTitlesForButtons() {
-        
+        questionLabel.backgroundColor = foregroundColor
+        questionLabel.text = currentQuestion.question
+        answerTextField.text = nil
+        answerTextField.placeholder = "Answer"
+        answerTextField.isEnabled = true
         startTimer()
     }
     
@@ -176,18 +221,44 @@ class EmojiQuizViewController: UIViewController {
         
     }
 
+    @objc func questionButtonHandler() {
+        questionButton.isEnabled = false
+        questionIndex += 1
+        questionIndex < questionArray.count ? loadNextQuestion() : showAlert(forReason: 2)
+    }
     
-    @objc func answerButtonHandler(_ sender: RoundedButton) {
+    func checkAnswer(withString string: String) {
         timer.invalidate()
-        if sender.titleLabel?.text == currentQuestion.correctAnswer {
-            score += 1
-            questionLabel.text = "Tap to continue"
+        answerTextField.isEnabled = false
+        if string == currentQuestion.correctAnswer {
+            questionLabel.backgroundColor = flatGreen
             questionButton.isEnabled = true
+            score += 1
         } else {
-            sender.backgroundColor = flatRed
+            questionLabel.backgroundColor = flatRed
             showAlert(forReason: 1)
         }
-        
+        questionLabel.text = currentQuestion.correctAnswer
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if let string = textField.text?.uppercased() {
+            checkAnswer(withString: string)
+        }
+        return true
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            self.answerView.frame.origin.y -= keyboardSize.height
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            self.answerView.frame.origin.y += keyboardSize.height
+        }
     }
     
     func showAlert(forReason reason: Int) {
@@ -223,9 +294,9 @@ class EmojiQuizViewController: UIViewController {
         // Change UserDefaults keys
         if score > highscore {
             highscore = score
-            UserDefaults.standard.set(highscore, forKey: multipleChoiceHighscoreIdentifier)
+            UserDefaults.standard.set(highscore, forKey: emojiHighscoreIdentifier)
         }
-        UserDefaults.standard.set(score, forKey: multipleChoiceRecentscoreIdentifier)
+        UserDefaults.standard.set(score, forKey: emojiRecentscoreIdentifier)
         navigationController?.popViewController(animated: true)
     }
     
@@ -234,6 +305,8 @@ class EmojiQuizViewController: UIViewController {
         if parent == nil {
             timer.invalidate()
         }
+//        print("emojiHighscoreIdentifier:", UserDefaults.standard.integer(forKey: emojiHighscoreIdentifier))
+//        print("emojiRecentscoreIdentifier:", UserDefaults.standard.integer(forKey: emojiRecentscoreIdentifier))
     }
 
 }
